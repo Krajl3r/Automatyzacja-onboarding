@@ -42,30 +42,41 @@
         const onboardingFormWebhookURL = 'https://hook.eu2.make.com/1ovff2hnkp66fedinlsuryfsvq8le5vg'; // Podmień na URL webhooka dla formularza onboardingowego
 
         document.getElementById('onboardingForm').addEventListener('submit', function(event) {
-            event.preventDefault();
+    event.preventDefault();
 
-            const formData = new FormData(this);
-            const data = {};
-            formData.forEach((value, key) => {
+    const formData = new FormData(this);
+    const data = {};
+
+    formData.forEach((value, key) => {
+        if (key === 'needs') {
+            // Jeśli klucz to "needs", dodaj wartości oddzielone przecinkami
+            if (!data[key]) {
                 data[key] = value;
-            });
+            } else {
+                data[key] += `,${value}`;
+            }
+        } else {
+            data[key] = value;
+        }
+    });
 
-            // Wyślij dane do Google Sheets (formularz onboardingowy)
-            fetch(onboardingFormWebhookURL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => {
-                if (response.ok) {
-                    alert('Dane zostały wysłane do Google Sheets (Formularz Onboardingowy).');
-                } else {
-                    alert('Wystąpił błąd podczas wysyłania danych (Formularz Onboardingowy).');
-                }
-            });
-        });
-    </script>
+    // Wyślij dane do Google Sheets (formularz onboardingowy)
+    fetch(onboardingFormWebhookURL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => {
+        if (response.ok) {
+            alert('Dane zostały wysłane do Google Sheets (Formularz Onboardingowy).');
+        } else {
+            alert('Wystąpił błąd podczas wysyłania danych (Formularz Onboardingowy).');
+        }
+    });
+});
+</script>
 </body>
+
 </html>
