@@ -41,42 +41,49 @@
     <script>
         const onboardingFormWebhookURL = 'https://hook.eu2.make.com/1ovff2hnkp66fedinlsuryfsvq8le5vg'; // Podmień na URL webhooka dla formularza onboardingowego
 
-        document.getElementById('onboardingForm').addEventListener('submit', function(event) {
-    event.preventDefault();
+       document.getElementById('onboardingForm').addEventListener('submit', function(event) {
+        event.preventDefault();
 
-    const formData = new FormData(this);
-    const data = {};
+        const formData = new FormData(this);
+        const data = {};
 
-    formData.forEach((value, key) => {
-        if (key === 'needs') {
-            // Jeśli klucz to "needs", dodaj wartości oddzielone przecinkami
-            if (!data[key]) {
-                data[key] = value;
+        formData.forEach((value, key) => {
+            if (key === 'needs') {
+                // Jeśli klucz to "needs", dodaj wartości oddzielone przecinkami
+                if (!data[key]) {
+                    data[key] = value;
+                } else {
+                    data[key] += `,${value}`;
+                }
             } else {
-                data[key] += `,${value}`;
+                data[key] = value;
             }
-        } else {
-            data[key] = value;
-        }
-    });
+        });
 
-    // Wyślij dane do Google Sheets (formularz onboardingowy)
-    fetch(onboardingFormWebhookURL, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-    })
-    .then(response => {
-        if (response.ok) {
-            alert('Dane zostały wysłane do Google Sheets (Formularz Onboardingowy).');
-        } else {
-            alert('Wystąpił błąd podczas wysyłania danych (Formularz Onboardingowy).');
+        // Ręczne przetwarzanie checkboxów, aby upewnić się, że są poprawnie łączone
+        const needsCheckboxes = document.querySelectorAll('input[name="needs"]:checked');
+        if (needsCheckboxes.length > 0) {
+            data['needs'] = Array.from(needsCheckboxes).map(checkbox => checkbox.value).join(',');
         }
+
+        // Wyślij dane do Google Sheets (formularz onboardingowy)
+        fetch(onboardingFormWebhookURL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => {
+            if (response.ok) {
+                alert('Dane zostały wysłane do Google Sheets (Formularz Onboardingowy).');
+            } else {
+                alert('Wystąpił błąd podczas wysyłania danych (Formularz Onboardingowy).');
+            }
+        });
     });
-});
 </script>
 </body>
 
 </html>
+
